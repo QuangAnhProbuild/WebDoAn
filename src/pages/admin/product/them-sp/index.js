@@ -24,10 +24,10 @@ function ThemSuaSp({
   const loaiDoUong = [
     { value: 1, label: "Cà phê" },
     { value: 2, label: "Cookie" },
-    { value: 12, label: "Trà hoa quả" },
+    { value: 5, label: "Trà hoa quả" },
     { value: 18, label: "Hộp cà phê" },
     { value: 12, label: "Combo" },
-    { value: 9 || 20 || 5, label: "Trà sữa" },
+    { value: 9 || 20, label: "Trà sữa" },
     { value: 72 || 10, label: "latte" },
   ];
 

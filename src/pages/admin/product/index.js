@@ -20,12 +20,13 @@ export default function Product() {
     {
       title: "STT",
       align: "center",
+      width: 50,
       render: (text, record, index) => <div>{index + 1}</div>,
     },
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Tên sản phẩm",
+      dataIndex: "product_name",
+      key: "product_name",
       width: 250,
     },
     {
@@ -113,14 +114,16 @@ export default function Product() {
   const dataAll = dataTable
     .map((e) => ({
       ...e,
+      _id: e?.id,
       base_price: e?.basePrice ? e?.basePrice.toString() : `${0}`.toString(),
       product_name: e?.name,
     }))
     .concat(
       dataCoffee?.map((e) => ({
         ...e,
+        basePrice: e?.base_price.toString(),
         name: e?.product_name,
-        base_price: e?.base_price.toString(),
+        categoryId: e?.categ_id?.[0],
       }))
     );
 
@@ -168,6 +171,7 @@ export default function Product() {
       let b = SearchMoney(searchMoney, dataAll);
       setDsTable(b);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchMoney]);
 
   useEffect(() => {
@@ -175,6 +179,7 @@ export default function Product() {
       let b = searchData(search, dataAll);
       setDsTable(b);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
   return (
     <div>
@@ -182,13 +187,15 @@ export default function Product() {
         <Row className="justify-end">
           <Button
             type="primary"
-            onClick={() => setShowModalProduct(true)}
+            onClick={() => {
+              setShowModalProduct(true);
+            }}
             className="w-32"
           >
             Thêm mới
           </Button>
         </Row>
-        <div className="grid grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 gap-10">
           <Form.Item label="Tên sản phẩm">
             <Input onChange={(e) => setSearch(e.target.value)} />
           </Form.Item>
@@ -210,6 +217,7 @@ export default function Product() {
         setVisible={setShowModalProduct}
         dataModal={dataModal}
         getApiProduct={getApiProduct}
+        dataCoffee={dataAll}
       />
       <Modal
         title="Xóa thông tin xe"

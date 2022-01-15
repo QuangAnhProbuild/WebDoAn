@@ -14,10 +14,10 @@ const Home = () => {
   const getDsCars = async () => {
     try {
       const resp = await axios.get(
-        `https://cars-rental-api.herokuapp.com/cars`,
+        `https://cars-rental-api.herokuapp.com/products`,
         {}
       );
-      setDsCars(resp?.data?.data?.cars);
+      setDsCars(resp?.data?.data?.products);
     } catch (error) {
       console.log(error);
     }
@@ -26,10 +26,10 @@ const Home = () => {
     if (idCar) {
       try {
         const resp = await axios.get(
-          `https://cars-rental-api.herokuapp.com/cars/${idCar}`,
+          `https://cars-rental-api.herokuapp.com/products/${idCar}`,
           {}
         );
-        setCarDetail([resp?.data?.data?.car]);
+        setCarDetail([resp?.data?.data?.product]);
       } catch (error) {
         console.log(error);
       }
@@ -37,6 +37,7 @@ const Home = () => {
   };
   useEffect(() => {
     getCarDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idCar]);
   useEffect(() => {
     getDsCars();
@@ -48,7 +49,7 @@ const Home = () => {
         <Carousel autoplay>
           <div>
             <img
-              src="https://hondagiaiphong.net/images/2018/Tin%20tuc/10.honda-viet-nam-cong-bo-gia-ban-le-moi/01-banner-top-gia-xe-oto-honda.jpg"
+              src="https://recmiennam.com/wp-content/uploads/2018/04/anh-ly-cafe-buoi-sang-10.jpg"
               className="w-full mt-20"
               style={{ height: 500 }}
               alt="ảnh ô tô"
@@ -56,7 +57,7 @@ const Home = () => {
           </div>
           <div>
             <img
-              src="https://img3.thuthuatphanmem.vn/uploads/2019/10/08/banner-quang-cao-o-to_103213258.jpg"
+              src="https://sieuimba.com/wp-content/uploads/2015/05/12.jpg"
               className="w-full mt-20"
               style={{ height: 500 }}
               alt="ảnh ô tô"
@@ -64,7 +65,7 @@ const Home = () => {
           </div>
           <div>
             <img
-              src="https://honda-mydinh.com.vn/wp-content/uploads/2016/12/01-banner-top-xe-oto-honda-city-2018.jpg"
+              src="http://file.hstatic.net/1000135323/article/tra-trai-cay-cac-loai_34fcf3d606084e7880df4cd29a5413e4.jpg"
               className="w-full mt-20"
               style={{ height: 500 }}
               alt="ảnh ô tô"
@@ -72,7 +73,7 @@ const Home = () => {
           </div>
           <div>
             <img
-              src="http://hondaotohungyen.com/wp-content/uploads/2018/06/Xe-Honda-Odyssey-2016-tai-viet-nam-1088x403.png"
+              src="https://cdn.beptruong.edu.vn/wp-content/uploads/2019/01/cookie-ice-blended.jpg"
               className="w-full mt-20"
               style={{ height: 500 }}
               alt="ảnh ô tô"
@@ -83,7 +84,7 @@ const Home = () => {
       <div className=" flex justify-center justify-items-center pb-12">
         <div className="w-4/5">
           {/* <div id="4cho" style={{ marginTop: -100 }} className="hidden"></div> */}
-          <Typography>Xe 4 chỗ</Typography>
+          <Typography>Sản phẩm</Typography>
 
           <div className="grid xl:grid-cols-2 sm:grid-cols-1 xl:gap-x-10">
             {dsCars?.map((e) => {
@@ -92,7 +93,7 @@ const Home = () => {
                   <div className="mr-2">
                     <img
                       className="rounded-md shadow-sm "
-                      src={e?.url}
+                      src={e?.image}
                       style={{ height: 250, width: 350 }}
                       alt="ảnh ô tô"
                     />
@@ -135,39 +136,22 @@ const Home = () => {
                 <div className="mr-10">
                   <Image
                     // className="rounded-md shadow-sm "
-                    src={e?.url}
+                    src={e?.image}
                     width={500}
-                    alt="ảnh ô tô"
+                    alt="Ảnh sản phẩm"
                   />
                 </div>
                 <div>
-                  <span>{e?.name}</span>
+                  <div>
+                    <span>{e?.name}</span>
+                  </div>
+                  <div>
+                    <p>{e?.description}</p>
+                  </div>
                 </div>
               </div>
             );
           })}
-          <div className="pl-10 mt-10 border-dashed border-2 pt-2">
-            <h1 className="text-2xl">Chú ý</h1>
-            <ul className="list-disc">
-              <li>
-                Giá trên áp dụng cho mỗi ca xe được phép đi 250km và trong 8
-                giờ. (Ca xe từ 6-8h đến 18h00 hàng ngày).
-              </li>
-              <li>Giao xe từ 6h00 đến 8h00 hoặc 19h00 đến 21h00 hàng ngày.</li>
-              <li>
-                Sử dụng xe dưới 4giờ giá 450.000đ/ca. Mỗi giờ tiếp theo giá:
-                100.000 đ/giờ.
-              </li>
-              <li>
-                Quý khách lưu ý trả xe vào 18h00 đến 19h00 hàng ngày. (Sau 18h00
-                chúng tôi tính phí phụ trội theo báo giá).
-              </li>
-              <li>
-                Quý khách tự ý sử dụng xe quá giờ ghi trong Hợp đồng sẽ tính
-                bằng 150% giá giờ phụ trội trong báo giá này.
-              </li>
-            </ul>
-          </div>
         </div>
       </Modal>
       <Footer />

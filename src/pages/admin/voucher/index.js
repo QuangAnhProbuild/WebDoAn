@@ -10,8 +10,6 @@ import {
   Image,
 } from "antd";
 import axios from "axios";
-import { getList } from "../../../service/api";
-import { getProduct } from "../../../service/api.coffee";
 import ThemSuaVoucher from "./them-voucher";
 import { HiOutlineTrash, HiPencil } from "react-icons/hi";
 
@@ -20,27 +18,32 @@ export default function Voucher() {
     {
       title: "STT",
       align: "center",
+      width: 50,
       render: (text, record, index) => <div>{index + 1}</div>,
     },
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Tiêu đề",
+      dataIndex: "title",
+      key: "title",
       width: 250,
     },
     {
-      title: "Giá",
-      dataIndex: "base_price",
-      key: "base_price",
-      render: (text) => (
-        <div>{`${text}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</div>
-      ),
+      title: "Ảnh",
+      dataIndex: "img",
+      key: "img",
+      render: (text) => <Image src={text} height={50} width={50} />,
     },
     {
-      title: "Ảnh",
-      dataIndex: "image",
-      key: "image",
-      render: (text) => <Image src={text} height={50} width={50} />,
+      title: "Giảm giá",
+      dataIndex: "discount",
+      key: "discount",
+      render: (text) => (
+        <div>
+          {text < 101
+            ? `${text}%`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            : `${text}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+        </div>
+      ),
     },
     {
       title: "Ghi chú",
@@ -77,83 +80,36 @@ export default function Voucher() {
   ];
   const [visible, setVisible] = useState(false);
   const [dataModal, setDataModal] = useState();
-  const [dataTable, setDataTable] = useState([]);
-  const [dataCoffee, setDataCoffee] = useState([]);
-  const [dsTable, setDsTable] = useState();
-  const [search, setSearch] = useState();
+  const [dsVoucher, setDsVoucher] = useState();
   const [loading, setLoading] = useState(false);
-  const [searchMoney, setSearchMoney] = useState();
   const [showModalProduct, setShowModalProduct] = useState(false);
-  const getApiProduct = async () => {
-    try {
-      const result = await getList();
-      setDataTable(result.data.data.products);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    getApiProduct();
-  }, []);
 
-  const getApiCoffee = async () => {
+  const getDsVoucher = async () => {
     try {
       setLoading(true);
-      const res = await getProduct();
-      setDataCoffee(res.data.data);
+      const res = await axios.get(
+        `https://cars-rental-api.herokuapp.com/vouchers`,
+        {}
+      );
+      setDsVoucher(res.data.data.vouchers);
     } catch (error) {
       console.log(error);
     }
     setLoading(false);
   };
+
   useEffect(() => {
-    getApiCoffee();
+    getDsVoucher();
   }, []);
-
-  const dataAll = dataTable
-    .map((e) => ({
-      ...e,
-      base_price: e?.basePrice ? e?.basePrice.toString() : `${0}`.toString(),
-      product_name: e?.name,
-    }))
-    .concat(
-      dataCoffee?.map((e) => ({
-        ...e,
-        name: e?.product_name,
-        base_price: e?.base_price.toString(),
-      }))
-    );
-
-  const searchData = (search, data) => {
-    let filterData = [];
-    for (var i = 0; i < dataAll?.length; i++) {
-      search = search.toLowerCase();
-      var name = dataAll[i].name.toLocaleLowerCase();
-      if (name.includes(search)) {
-        filterData.push(data[i]);
-      }
-    }
-    return filterData;
-  };
-  const SearchMoney = (searchMoney, data) => {
-    let filterData = [];
-    for (var i = 0; i < dataAll?.length; i++) {
-      var base_price = dataAll[i].base_price;
-      if (base_price.includes(searchMoney)) {
-        filterData.push(data[i]);
-      }
-    }
-    return filterData;
-  };
 
   const onDelete = async () => {
     if (dataModal?.id) {
       try {
         await axios.delete(
-          `https://cars-rental-api.herokuapp.com/products/${dataModal?.id}`,
+          `https://cars-rental-api.herokuapp.com/vouchers/${dataModal?.id}`,
           {}
         );
-        getApiProduct();
+        getDsVoucher();
         notification.success({
           message: "Xóa Thành công",
         });
@@ -163,19 +119,50 @@ export default function Voucher() {
     }
   };
 
+  const [search, setSearch] = useState();
+  const [searchDC, setSearchDC] = useState();
+  const [dsTable, setDsTable] = useState([]);
+
+  const searchData = (search, data) => {
+    let filterData = [];
+    for (var i = 0; i < dsVoucher?.length; i++) {
+      search = search.toLowerCase();
+      var name = dsVoucher[i].title.toLocaleLowerCase();
+      if (name.includes(search)) {
+        filterData.push(data[i]);
+      }
+    }
+    return filterData;
+  };
+
+  const searchDChi = (search, data) => {
+    let filterData = [];
+    for (var i = 0; i < dsVoucher?.length; i++) {
+      search = search.toLowerCase();
+      var name = dsVoucher[i].discount.toString().toLocaleLowerCase();
+      if (name.includes(search)) {
+        filterData.push(data[i]);
+      }
+    }
+    return filterData;
+  };
+
   useEffect(() => {
-    if (searchMoney) {
-      let b = SearchMoney(searchMoney, dataAll);
+    if (searchDC) {
+      let b = searchDChi(searchDC, dsVoucher);
       setDsTable(b);
     }
-  }, [searchMoney]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchDC]);
 
   useEffect(() => {
     if (search) {
-      let b = searchData(search, dataAll);
+      let b = searchData(search, dsVoucher);
       setDsTable(b);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
+
   return (
     <div>
       <Form layout="vertical">
@@ -188,12 +175,12 @@ export default function Voucher() {
             Thêm mới
           </Button>
         </Row>
-        <div className="grid grid-cols-4 gap-5">
-          <Form.Item label="Tên sản phẩm">
+        <div className="grid grid-cols-2 gap-10">
+          <Form.Item label="Tên voucher">
             <Input onChange={(e) => setSearch(e.target.value)} />
           </Form.Item>
-          <Form.Item label="Giá tiền">
-            <Input onChange={(e) => setSearchMoney(e.target.value)} />
+          <Form.Item label="Giảm giá">
+            <Input onChange={(e) => setSearchDC(e.target.value)} />
           </Form.Item>
         </div>
 
@@ -201,7 +188,7 @@ export default function Voucher() {
           columns={columns}
           bordered
           size="small"
-          dataSource={search || searchMoney ? dsTable : dataAll}
+          dataSource={search || searchDC ? dsTable : dsVoucher}
           loading={loading}
         />
       </Form>
@@ -209,7 +196,7 @@ export default function Voucher() {
         visible={showModalProduct}
         setVisible={setShowModalProduct}
         dataModal={dataModal}
-        getApiProduct={getApiProduct}
+        getApiProduct={getDsVoucher}
       />
       <Modal
         title="Xóa thông tin xe"

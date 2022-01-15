@@ -1,28 +1,37 @@
-import { Button, Form, Image, Input, Modal, notification, Row } from "antd";
+import {
+  Button,
+  Form,
+  Image,
+  Input,
+  Modal,
+  notification,
+  Row,
+  Select,
+} from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+// import { getProduct } from "../../../../service/api.coffee";
 
-function ThemSuaSp({ setVisible, visible, dataModal, getApiProduct }) {
+function ThemSuaSp({
+  setVisible,
+  visible,
+  dataModal,
+  getApiProduct,
+  dataCoffee,
+}) {
   const [form] = Form.useForm();
-  console.log(dataModal);
   const id = dataModal?.id;
+  const loaiDoUong = [
+    { value: 1, label: "Cà phê" },
+    { value: 2, label: "Cookie" },
+    { value: 12, label: "Trà hoa quả" },
+    { value: 18, label: "Hộp cà phê" },
+    { value: 12, label: "Combo" },
+    { value: 9 || 20 || 5, label: "Trà sữa" },
+    { value: 72 || 10, label: "latte" },
+  ];
 
-  const getProductDetail = async () => {
-    if (id) {
-      try {
-        const resp = await axios.get(
-          `https://cars-rental-api.herokuapp.com/products/${id}`,
-          {}
-        );
-        console.log(resp);
-        form.setFieldsValue(resp?.data?.data?.product);
-        setImage(resp?.data?.data?.product?.image);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
+  console.log(dataCoffee.find((e) => e._id === dataModal?._id));
   const onSubmit = async (data) => {
     if (id) {
       // call api chỉnh sửa
@@ -33,6 +42,7 @@ function ThemSuaSp({ setVisible, visible, dataModal, getApiProduct }) {
         );
         getApiProduct();
         setVisible(false);
+        onCancel();
         notification.success({
           message: "Chỉnh sửa thành công",
         });
@@ -48,6 +58,7 @@ function ThemSuaSp({ setVisible, visible, dataModal, getApiProduct }) {
         notification.success({
           message: "Thêm mới thành công!",
         });
+        onCancel();
         getApiProduct();
         setVisible(false);
       } catch (error) {
@@ -56,23 +67,35 @@ function ThemSuaSp({ setVisible, visible, dataModal, getApiProduct }) {
     }
   };
 
-  useEffect(() => {
-    if (id) {
-      getProductDetail();
-    }
-  }, [id]);
+  const onCancel = () => {
+    setVisible(false);
+    form.setFieldsValue({
+      name: "",
+      categoryId: undefined,
+      description: "",
+      image: "",
+      basePrice: "",
+    });
+    setImage("");
+  };
+
   const [image, setImage] = useState();
   useEffect(() => {
-    setImage(image);
-  }, [id]);
+    if (dataModal?._id) {
+      form.setFieldsValue(dataCoffee.find((e) => e._id === dataModal?._id));
+      setImage(dataCoffee.find((e) => e._id === dataModal?._id)?.image);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataModal?._id]);
+
   return (
     <Modal
-      title={id ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
+      title={dataModal?._id ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
       visible={visible}
-      onCancel={() => setVisible(false)}
+      onCancel={onCancel}
       footer={
         <Row>
-          <Button onClick={() => setVisible(false)}>Hủy</Button>
+          <Button onClick={onCancel}>Hủy</Button>
           <Button
             onClick={() => {
               form
@@ -95,10 +118,12 @@ function ThemSuaSp({ setVisible, visible, dataModal, getApiProduct }) {
       }
     >
       <Form form={form} layout="vertical">
-        {image ? (
-          <Form.Item label="Ảnh sản phẩm">
-            <Image src={image} height={80} width={80} />
-          </Form.Item>
+        {dataModal ? (
+          image ? (
+            <Form.Item label="Ảnh sản phẩm">
+              <Image src={image} height={80} width={80} />
+            </Form.Item>
+          ) : null
         ) : null}
         <Form.Item name="name" label="Tên sản phẩm">
           <Input />
@@ -107,7 +132,12 @@ function ThemSuaSp({ setVisible, visible, dataModal, getApiProduct }) {
           <Input />
         </Form.Item>
         <Form.Item name="categoryId" label="Loại">
-          <Input />
+          <Select
+            options={loaiDoUong.map((e) => ({
+              value: e?.value,
+              label: e?.label,
+            }))}
+          />
         </Form.Item>
         <Form.Item name="image" label="Hình ảnh">
           <Input onChange={(e) => setImage(e.target.value)} />

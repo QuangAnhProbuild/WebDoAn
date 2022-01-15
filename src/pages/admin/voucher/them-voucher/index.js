@@ -11,12 +11,12 @@ function ThemSuaVoucher({ setVisible, visible, dataModal, getApiProduct }) {
     if (id) {
       try {
         const resp = await axios.get(
-          `https://cars-rental-api.herokuapp.com/products/${id}`,
+          `https://cars-rental-api.herokuapp.com/vouchers/${id}`,
           {}
         );
         console.log(resp);
-        form.setFieldsValue(resp?.data?.data?.product);
-        setImage(resp?.data?.data?.product?.image);
+        form.setFieldsValue(resp?.data?.data?.voucher);
+        setImage(resp?.data?.data?.voucher?.img);
       } catch (error) {
         console.log(error);
       }
@@ -28,11 +28,11 @@ function ThemSuaVoucher({ setVisible, visible, dataModal, getApiProduct }) {
       // call api chỉnh sửa
       try {
         await axios.put(
-          `https://cars-rental-api.herokuapp.com/products/${id}`,
+          `https://cars-rental-api.herokuapp.com/vouchers/${id}`,
           data
         );
         getApiProduct();
-        setVisible(false);
+        onCancel();
         notification.success({
           message: "Chỉnh sửa thành công",
         });
@@ -42,37 +42,50 @@ function ThemSuaVoucher({ setVisible, visible, dataModal, getApiProduct }) {
     } else {
       try {
         await axios.post(
-          `https://cars-rental-api.herokuapp.com/products`,
+          `https://cars-rental-api.herokuapp.com/vouchers`,
           data
         );
         notification.success({
           message: "Thêm mới thành công!",
         });
+        onCancel();
         getApiProduct();
-        setVisible(false);
       } catch (error) {
         console.log(error);
       }
     }
   };
 
+  const onCancel = () => {
+    setVisible(false);
+    form.setFieldsValue({
+      title: "",
+      description: "",
+      img: "",
+      discount: "",
+    });
+    setImage("");
+  };
+
   useEffect(() => {
     if (id) {
       getProductDetail();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
   const [image, setImage] = useState();
   useEffect(() => {
     setImage(image);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
   return (
     <Modal
-      title={id ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
+      title={id ? "Chỉnh sửa Voucher" : "Thêm mới Voucher"}
       visible={visible}
-      onCancel={() => setVisible(false)}
+      onCancel={onCancel}
       footer={
         <Row>
-          <Button onClick={() => setVisible(false)}>Hủy</Button>
+          <Button onClick={onCancel}>Hủy</Button>
           <Button
             onClick={() => {
               form
@@ -96,23 +109,20 @@ function ThemSuaVoucher({ setVisible, visible, dataModal, getApiProduct }) {
     >
       <Form form={form} layout="vertical">
         {image ? (
-          <Form.Item label="Ảnh sản phẩm">
+          <Form.Item label="Ảnh voucher">
             <Image src={image} height={80} width={80} />
           </Form.Item>
         ) : null}
-        <Form.Item name="name" label="Tên sản phẩm">
+        <Form.Item name="title" label="Tên voucher">
           <Input />
         </Form.Item>
-        <Form.Item name="description" label="Ghi chú">
+        <Form.Item name="discount" label="Giảm giá">
           <Input />
         </Form.Item>
-        <Form.Item name="categoryId" label="Loại">
-          <Input />
-        </Form.Item>
-        <Form.Item name="image" label="Hình ảnh">
+        <Form.Item name="img" label="Hình ảnh">
           <Input onChange={(e) => setImage(e.target.value)} />
         </Form.Item>
-        <Form.Item name="basePrice" label="Giá">
+        <Form.Item name="description" label="Ghi chú">
           <Input />
         </Form.Item>
       </Form>
